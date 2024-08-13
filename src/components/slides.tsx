@@ -28,6 +28,7 @@ export const SlideComponent: FC<{
     const slidebar = document.getElementById('slidebar') as HTMLDivElement;
     const parts = [...ranges];
     const newValue = parts[active][isFirst ? 0 : 1] + (e.pageX - originPosition) / slidebar.offsetWidth * total;
+    if (newValue < 0 || newValue > total) return;
     if (isFirst && newValue >= parts[active][1]) return;
     if (!isFirst && newValue <= parts[active][0]) return;
     parts[active][isFirst ? 0 : 1] = newValue;
@@ -38,28 +39,27 @@ export const SlideComponent: FC<{
   return (
     <div className="flex w-full px-5 items-center">
       <div className="flex bg-white flex-grow relative">
-        <div className="flex w-full h-1 relative z-10" id="slidebar">
+        <div className="flex w-full h-1 relative z-20" id="slidebar">
           {lengths.map((len, index) => (
-            <div key={`slide${index}`} className={'flex h-2 -mt-0.5 bg-transparent border-[#092c10] [&:not(:last-child)]:border-r-4'} style={{ width: `${len}%` }}></div>
+            <div key={`slide${index}`} className='flex h-2 -mt-0.5 bg-transparent border-[#092c10] [&:not(:last-child)]:border-r-4' style={{ width: `${len}%` }}></div>
           ))}
         </div>
-        {parts.map((part, index) => {
-          if (index === active) return <div key={`part${index}`} className={`absolute h-2 -mt-0.5`} style={{ left: `${part[0]}%`, width: `${part[1] - part[0]}%`, backgroundColor: slideColors[index % slideColors.length] }}></div>
-          else return <div key={`part${index}`} className={`absolute h-full`} style={{ left: `${part[0]}%`, width: `${part[1] - part[0]}%`, backgroundColor: slideColors[index % slideColors.length] }}></div>
-        })}
+        {parts.map((part, index) => (
+          <div key={`part${index}`} className={`absolute ${active === index ? 'z-10 h-2 -mt-0.5' : 'h-full'}`} style={{ left: `${part[0]}%`, width: `${part[1] - part[0]}%`, backgroundColor: slideColors[index % slideColors.length] }}></div>
+        ))}
         {(() => {
           if (parts.length > active && active >= 0) {
             const part = parts[active];
             return <>
               <div
-                className='absolute h-3 -mt-1 w-1.5 cursor-grab z-20 hover:contrast-50 active:contrast-50 active:cursor-grabbing'
+                className='absolute h-3 -mt-1 w-1.5 cursor-grab z-30 hover:contrast-50 active:contrast-50 active:cursor-grabbing'
                 draggable={true}
                 onDragStart={e => setOriginPosition(e.pageX)}
                 onDrag={e => onDrag(e, true)}
                 style={{ left: `${part[0]}%`, backgroundColor: slideColors[active % slideColors.length] }}
               ></div>
               <div
-                className='absolute h-3 -mt-1 w-1.5 cursor-grab z-20 hover:contrast-50 active:contrast-50 active:cursor-grabbing'
+                className='absolute h-3 -mt-1 w-1.5 cursor-grab z-30 hover:contrast-50 active:contrast-50 active:cursor-grabbing'
                 draggable={true}
                 onDragStart={e => setOriginPosition(e.pageX)}
                 onDrag={e => onDrag(e, false)}
